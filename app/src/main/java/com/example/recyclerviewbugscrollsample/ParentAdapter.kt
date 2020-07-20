@@ -12,11 +12,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class ParentAdapter(
-    private var sections: MutableList<Pair<String, List<String>?>?>,
+    private var sections: List<Pair<String, List<String>>?>,
     private val context: Context
 ) : RecyclerView.Adapter<ParentAdapter.ViewHolder>() {
 
     private val viewPool = RecyclerView.RecycledViewPool()
+
+    fun updateData(data: List<Pair<String, List<String>>?>) {
+        sections = data
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -33,10 +37,13 @@ class ParentAdapter(
         private val noContent: TextView = itemView.findViewById(R.id.no_content_lbl)
 
         fun bind(items: List<String>?) {
-
             if (items == null || items.isEmpty()) {
-                updateLayoutVisibility()
+                recyclerView.visibility = View.GONE
+                noContentLayout.visibility = View.VISIBLE
                 noContent.text = "No content"
+            } else {
+                recyclerView.visibility = View.VISIBLE
+                noContentLayout.visibility = View.GONE
             }
 
             setupRecyclerView(recyclerView, items)
@@ -60,17 +67,12 @@ class ParentAdapter(
                 addItemDecoration(itemDecoration)
             }
         }
-
-        private fun updateLayoutVisibility() {
-            recyclerView.visibility = View.GONE
-            noContentLayout.visibility = View.VISIBLE
-        }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val section = sections[position]
 
-        section?.second.let { holder.bind(it) }
+        section?.second.let { holder.bind(it?.toList()) }
     }
 
     override fun getItemCount(): Int {
